@@ -2,11 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import TypeAlias, Literal
 from enum import Enum
-import ssl
-import urllib.request
 from urllib.error import URLError
-import json
-from json.decoder import JSONDecodeError
 import requests
 
 from coordinates import Coordinates
@@ -16,7 +12,7 @@ import openweather_tamplate
 Celsius: TypeAlias = int
 
 
-class WeatherType(Enum):
+class WeatherType(str, Enum):
     THUNDERSTORM = "Гроза"
     DRIZZLE = "Изморось"
     RAIN = "Дождь"
@@ -42,32 +38,36 @@ def get_weather(coordinates: Coordinates) -> Weather:
     return parsed_data
 
 
-def _get_api_response(latitude: float, longitude: float) -> str:
-    ssl._create_default_https_context = ssl._create_unverified_context
-
+def _get_api_response(latitude: float, longitude: float) -> dict:
     my_url = openweather_tamplate.API_URL.format(latitude=latitude, longitude=longitude)
 
     try:
         data = requests.get(my_url)
         data = data.json()
-        print(data)
+
         return data
 
     except URLError:
         raise api_service_error
 
+
+def _parse_data(api_data: dict) -> Weather:
     return Weather(
-        temperature = round(weather_dict['main']['temp']),
-        weather_type = _get_weather_type(weather_dict),
-        sunrise = _parse_sun_time(weather_dict, 'sunrise'),
-        sunset = _parse_sun_time(weather_dict, 'sunset'),
-        city = weather_dict['name']
+    temperature=_parse_weather_temperature(api_data),
+    weather_type=_parse_weather_type(api_data),
+    sunrise=_parse_sun_time(api_data, "sunrise"),
+    sunset=_parse_sun_time(api_data, "sunset"),
+    city=_parse_city(api_data)
     )
 
 
-def _get_weather_type(weather_dict: dict) -> WeatherType:
+def _parse_weather_temperature(api_data: dict) -> Celsius:
+    return round(api_data["main"]["temp"])
+
+
+def _parse_weather_type(data_weather: dict) -> WeatherType:
     try:
-        weather_type_id = str(openweather_dict["weather"][0]["id"])
+        weather_type_id = str(data_weather["weather"][0]["id"])
     except (IndexError, KeyError):
         raise api_service_error
 
@@ -87,8 +87,14 @@ def _get_weather_type(weather_dict: dict) -> WeatherType:
 
     raise api_service_error
 
-def _parse_sun_time(openweather_dict: dict, time: Literal["sunrise"] | Literal["sunset"]) -> datetime:
-    return datetime.fromtimestamp(openweather_dict["sys"][time])
+    
+def _parse_sun_time(api_data: dict, time: Literal["sunrise"] | Literal["sunset"]) -> datetime:
+    return datetime.fromtimestamp(api_data["sys"][time])
+
+
+def _parse_city(api_data: dict) -> str:
+    return api_data["name"]
+
 
 if __name__ == "__main__":
     print(get_weather(Coordinates(latitude=59.9, longitude=30.3)))
