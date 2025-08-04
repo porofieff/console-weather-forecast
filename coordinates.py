@@ -1,6 +1,5 @@
-import json
-from typing import NamedTuple
 from dataclasses import dataclass
+import os
 
 
 @dataclass(slots=True, frozen=True)
@@ -10,13 +9,13 @@ class Coordinates:
 
 
 def get_gps_coordinates() -> Coordinates:
-    with open("data.json", "r") as file:
-        data = json.load(file)
 
-    latitude = data['coordinates']['latitude']
-    longitude = data['coordinates']['longitude']
+    latitude = str(os.getenv("OW_LAT"))
+    longitude = str(os.getenv("OW_LON"))
 
-    return Coordinates(latitude, longitude)
+    return Coordinates(float(latitude), float(longitude)
+
+)
 
 
 if __name__ == "__main__":

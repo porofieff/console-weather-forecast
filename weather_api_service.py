@@ -37,7 +37,7 @@ class Weather:
 def get_weather(coordinates: Coordinates) -> Weather:
     api_response_data = _get_api_response(longitude=coordinates.longitude, latitude=coordinates.latitude)
     parsed_data = _parse_data(api_response_data)
-
+    
     return parsed_data
 
 
