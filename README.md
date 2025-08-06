@@ -1,7 +1,10 @@
 # Console Weather Forecast
-<a>
-    <img src="media/weather_usage.gif" width="60" height="6rea0">
+<div align="center">
+  <a>
+    <img src="media/weather_usage.gif" width="600" height="600">
   </a>
+</div>
+
   
 
 ------------
