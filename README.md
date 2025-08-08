@@ -19,9 +19,10 @@
 1) Вам нужно получить API ключ на сайте [OpenWeatherMap](https://openweathermap.org/current)
 2) Узнать ваши GPS координаты.
 
-3) Скопировать репозиторий
+3) Скопировать репозиторий и перейти в новую директорию
  ```sh
   git clone https://github.com/porofieff/console-weather-forecast.git
+  cd console-weather-forecast
   ```
 
 4) Создание симлинка на исполняемый файл, это позволит запускать приложение из любой точки в системе
